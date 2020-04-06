@@ -123,9 +123,21 @@ pub fn encode_usize_to_slice(value: usize, length: usize, slice: &mut [u8]) {
         size.copy_from_slice(&encoded.to_le_bytes()[..length]);
     }
 
-    #[cfg(not(target_pointer_width = "64"))]
+    #[cfg(target_pointer_width = "32")]
     {
-        let encoded = (value << 1 | 1) << (length - 1);
+        let encoded = ((value as u64) << 1 | 1) << (length - 1);
+        size.copy_from_slice(&encoded.to_le_bytes()[..length]);
+    }
+
+    #[cfg(target_pointer_width = "16")]
+    {
+        let encoded = ((value as u32) << 1 | 1) << (length - 1);
+        size.copy_from_slice(&encoded.to_le_bytes()[..length]);
+    }
+
+    #[cfg(target_pointer_width = "8")]
+    {
+        let encoded = ((value as u16) << 1 | 1) << (length - 1);
         size.copy_from_slice(&encoded.to_le_bytes()[..length]);
     }
 }
